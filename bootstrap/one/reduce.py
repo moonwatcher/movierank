@@ -3,7 +3,7 @@
 
 import sys
 
-def print_record(record, weight):
+def print_record(record, weight,rank):
     print u'\t'.join([
         record[0],      # <content id>
         record[2],      # <content type>
@@ -16,18 +16,19 @@ def print_record(record, weight):
         record[5],      # <age at release date>
         record[6],      # <job>
         record[7],      # <department>
-        unicode(1.0),   # <content rank> this will be the initial content rank
+        unicode(rank),  # <content rank> this will be the initial content rank
         unicode(0.0),   # <person rank> people get ranks later on
     ]).encode('utf8')
     
-def print_buffer(buffer):
+def print_buffer(buffer, rank):
     # The buffer contains all the people in the content and we calculate the weight for each person in the content
     # We also allocate the initial content rank
     weight = unicode(1.0 / float(len(buffer)))
     for record in buffer:
-        print_record(record, weight)
+        print_record(record, weight, rank)
         
-def reduce():
+def reduce(content_count):
+    rank = 1.0 / float(content_count)
     buffer = []
     for line in sys.stdin:
         line = unicode(line, 'utf8')
@@ -57,9 +58,9 @@ def reduce():
             if len(buffer) == 0 or record[0] == buffer[0][0]:
                 buffer.append(record)
             else:
-                print_buffer(buffer)
+                print_buffer(buffer, rank)
                 buffer = [record]
                 
-    if len(buffer) > 0: print_buffer(buffer)
+    if len(buffer) > 0: print_buffer(buffer, rank)
     
-reduce()
+reduce(sys.argv[1])
