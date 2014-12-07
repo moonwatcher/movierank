@@ -1,0 +1,195 @@
+# Bootstrap:
+# ----------
+#
+# Pahse one:
+# ----------
+#
+# The mapper takes:
+# index  movie                                       tv show                     tv season                   tv episode
+# --------------------------------------------------------------------------------------------------------------------------
+# 0      <media kind:movie>                          <media kind:tv show>        <media kind:tv season>      <media kind:tv season>
+# 1      <person id>                                 <person id>                 <person id>                 <person id>
+# 2      <movie id>                                  <tv show id>                <tv season id>              <tv episode id>
+# 3      <order>                                     <order>                     <order>                     <order>
+# 4      <release year>                              <release year>              <release year>              <release year>
+# 5      <age at release date>                       <age at release date>       <age at release date>       <age at release date>
+# 6      <job>                                       <job>                       <job>                       <job>
+# 7      <department>                                <department>                <department>                <department>
+# 8      <budget>                                    <budget>                    <budget>                    <budget>
+# 9      <revenue>                                   <revenue>                   <revenue>                   <revenue>
+# 10     <tmdb popularity>
+# 11     <tmdb vote average>
+# 12     <tmdb vote count>
+# 13     <rotten tomatoes audience rating>
+# 14     <rotten tomatoes audience score>
+# 15     <rotten tomatoes critics rating>
+# 16     <rotten tomatoes critics score>
+# 17     <person name>                               <person name>               <person name>               <person name>
+# 18     <movie name>                                <tv show name>              <tv season number>          <tv episode name>
+# 
+# and returns:
+# index  movie                                       tv show                     tv season                   tv episode
+# --------------------------------------------------------------------------------------------------------------------------
+# 0      <movie id>                                  <tv show id>                <tv season id>              <tv episode id>
+# 1      <person id>                                 <person id>                 <person id>                 <person id>
+# 2      <media kind:movie>                          <media kind:tv show>        <media kind:tv season>      <media kind:tv season>
+# 3      <order>                                     <order>                     <order>                     <order>
+# 4      <release year>                              <release year>              <release year>              <release year>
+# 5      <age at release date>                       <age at release date>       <age at release date>       <age at release date>
+# 6      <job>                                       <job>                       <job>                       <job>
+# 7      <department>                                <department>                <department>                <department>
+# 8      <budget>                                    <budget>                    <budget>                    <budget>
+# 9      <revenue>                                   <revenue>                   <revenue>                   <revenue>
+# 10     <tmdb popularity>
+# 11     <tmdb vote average>
+# 12     <tmdb vote count>
+# 13     <rotten tomatoes audience rating>
+# 14     <rotten tomatoes audience score>
+# 15     <rotten tomatoes critics rating>
+# 16     <rotten tomatoes critics score>
+# 17     <person name>                               <person name>               <person name>               <person name>
+# 18     <movie name>                                <tv show name>              <tv season number>          <tv episode name>
+#
+# This will sort by content id so we can infer the weight for each person in a content and the initial content rank
+#
+# The reducer returns:
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight> set to 0 and will be initialized on phase 2
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank> set to the initial content rank
+# 12 <person rank> set to 0 as people ranks are inferred during the run
+# 
+# Phase 2:
+# --------
+# 
+# The mapper takes the output from phase 1 and swaps 0 and 5 to sort by person id:
+# 0  <person id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <content id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank>
+# 12 <person rank>
+# 
+# The reducer will add the weight for each content in a person and reverse 0 and 5 back:
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight> initialized in this phase
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank>
+# 12 <person rank>
+#
+# Content ranking algorithm:
+# --------------------------
+#
+# Phase 1:
+# --------
+# This phase takes the rank from the content and distributes it on the people according to their weight
+# The reducer sums up all the partial ranks from each content to form the final rank for each person in this iteration.
+#
+# Mapper takes:
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank>
+# 12 <person rank>
+#
+# For each record it calculates the partial person rank from the content 
+# and swaps the content and person id so the reducer will see its input sorted by person id
+# and can sum the ranks up:
+#
+# 0  <person id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <content id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank>
+# 12 <person rank> equals to <contant rank> * <person weight>
+#
+# The reducer sums up all the ranks for each person and swaps content and person id back:
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank>
+# 12 <person rank> equals to the sum of all this person's ranks
+
+# Phase 2:
+# --------
+# This phase takes the rank from the person and distributes it on the content according to their weight
+# The reducer sums up all the partial ranks from each person to form the final rank for each content in this iteration.
+#
+# Mapper takes the output from the phase 1 reducer
+#
+# For each record it calculates the partial content rank from the person 
+#
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank> equals to <person rank> * <content weight>
+# 12 <person rank>
+#
+# The reducer sums up all the ranks for each content:
+# 0  <content id>
+# 1  <content type>
+# 2  <content weight>
+# 3  <content name>
+# 4  <release year>
+# 5  <person id>
+# 6  <person name>
+# 7  <person weight>
+# 8  <age at release date>
+# 9  <job>
+# 10 <department>
+# 11 <content rank> equals to the sum of all this content's ranks
+# 12 <person rank>
