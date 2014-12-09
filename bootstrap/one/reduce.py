@@ -3,11 +3,14 @@
 
 import sys
 
+NUMBER_OF_STARS=3
+ABOVE_THE_LINE_WEIGHT=0.5
+
 def print_record(record, weight,rank):
     print u'\t'.join([
         record[0],      # <content id>
         record[2],      # <content type>
-        unicode(0.0),   # <content weight> will be calculated in the next phase
+        '0',            # <content weight> will be calculated in the next phase
         record[18],     # <content name>
         record[4],      # <release year>
         record[1],      # <person id>
@@ -16,19 +19,41 @@ def print_record(record, weight,rank):
         record[5],      # <age at release date>
         record[6],      # <job>
         record[7],      # <department>
-        unicode(rank),  # <content rank> this will be the initial content rank
-        unicode(0.0),   # <person rank> people get ranks later on
+        rank,           # <content rank> this will be the initial content rank
+        '0',            # <person rank> people get ranks later on
     ]).encode('utf8')
     
 def print_buffer(buffer, rank):
     # The buffer contains all the people in the content and we calculate the weight for each person in the content
-    # We also allocate the initial content rank
-    weight = unicode(1.0 / float(len(buffer)))
+    # We seperate the "above the line" http://en.wikipedia.org/wiki/Above_the_line_(filmmaking) 
+    # and "bellow the line" http://en.wikipedia.org/wiki/Below_the_line_(filmmaking) credits
+    above_the_line = []
+    bellow_the_line = []
+    star = NUMBER_OF_STARS
     for record in buffer:
-        print_record(record, weight, rank)
-        
+        if  (record[7] == 'directing' and record[6] == 'director') or \
+            (record[7] == 'writing' and record[6] == 'screenplay') or \
+            (record[7] == 'production' and record[6] == 'producer'):
+            above_the_line.append(record)
+            
+        elif (record[7] == 'acting' and record[6] == 'actor' and star > 0):
+            above_the_line.append(record)
+            star -= 1
+        else:
+            bellow_the_line.append(record)
+    
+    if len(above_the_line) > 0:
+        above_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(above_the_line))) * ABOVE_THE_LINE_WEIGHT)
+        for record in above_the_line:
+            print_record(record, above_the_line_weight, rank)
+            
+    if len(bellow_the_line) > 0:
+        bellow_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(bellow_the_line))) * (1.0 - ABOVE_THE_LINE_WEIGHT))
+        for record in bellow_the_line:
+            print_record(record, bellow_the_line_weight, rank)
+            
 def reduce(content_count):
-    rank = 1.0 / float(content_count)
+    rank = u'{0:.32f}'.format(1.0 / float(content_count))
     buffer = []
     for line in sys.stdin:
         line = unicode(line, 'utf8')

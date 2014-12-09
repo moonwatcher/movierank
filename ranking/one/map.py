@@ -23,7 +23,7 @@ def map():
         record = line.strip().split(u'\t')
         if len(record) == 13: # otherwise something went wrong...
             # we want to sort by person id so we flip 0 and 5
-            rank = unicode(float(record[11]) * float(record[7]))
+            rank = u'{0:.32f}'.format(float(record[11]) * float(record[7]))
             print u'\t'.join([
                 record[5], 
                 record[1],

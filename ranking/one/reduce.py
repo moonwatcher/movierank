@@ -23,7 +23,7 @@ def print_record(record, rank):
 def print_buffer(buffer):
     rank = 0.0
     for record in buffer: rank += float(record[12])
-    rank = unicode(rank)
+    rank = u'{0:.32f}'.format(rank)
     for record in buffer:
         print_record(record, rank)
         

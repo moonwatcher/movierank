@@ -22,7 +22,7 @@ def map():
         
         record = line.strip().split(u'\t')
         if len(record) == 13: # otherwise something went wrong...
-            rank = unicode(float(record[12]) * float(record[2]))
+            rank = u'{0:.32f}'.format(float(record[12]) * float(record[2]))
             print u'\t'.join([
                 record[0], 
                 record[1],

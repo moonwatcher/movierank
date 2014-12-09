@@ -7,7 +7,7 @@ def print_record(record, weight):
     print u'\t'.join([
         record[5],      # <content id>
         record[1],      # <content type>
-        unicode(weight),# <content weight>
+        weight,         # <content weight>
         record[3],      # <content name>
         record[4],      # <release year>
         record[0],      # <person id>
@@ -22,7 +22,7 @@ def print_record(record, weight):
     
 def print_buffer(buffer):
     # The buffer contains all the content for a person and we calculate the weight for each content in a person
-    weight = 1.0 / float(len(buffer))
+    weight = u'{0:.32f}'.format(1.0 / float(len(buffer)))
     for record in buffer:
         print_record(record, weight)
         
