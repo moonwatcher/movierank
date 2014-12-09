@@ -4,7 +4,7 @@
 import sys
 
 NUMBER_OF_STARS=3
-ABOVE_THE_LINE_WEIGHT=0.5
+ABOVE_THE_LINE_FRAGMENT=0.8
 
 def print_record(record, weight,rank):
     print u'\t'.join([
@@ -27,9 +27,13 @@ def print_buffer(buffer, rank):
     # The buffer contains all the people in the content and we calculate the weight for each person in the content
     # We seperate the "above the line" http://en.wikipedia.org/wiki/Above_the_line_(filmmaking) 
     # and "bellow the line" http://en.wikipedia.org/wiki/Below_the_line_(filmmaking) credits
+    # We basically want the directors, screenwriters, producers and stars to get the majority of the weight
+    # Knowing who the "stars" are is somewhat tricky...
+    
     above_the_line = []
     bellow_the_line = []
     star = NUMBER_OF_STARS
+    
     for record in buffer:
         if  (record[7] == 'directing' and record[6] == 'director') or \
             (record[7] == 'writing' and record[6] == 'screenplay') or \
@@ -41,14 +45,18 @@ def print_buffer(buffer, rank):
             star -= 1
         else:
             bellow_the_line.append(record)
+    above_the_line_fragment = ABOVE_THE_LINE_FRAGMENT
+    
+    if len(bellow_the_line) == 0: above_the_line_weight = 1.0 # weird, but who knows...
+    if len(above_the_line) == 0: above_the_line_weight = 0.0 # even weirder, but who knows...
     
     if len(above_the_line) > 0:
-        above_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(above_the_line))) * ABOVE_THE_LINE_WEIGHT)
+        above_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(above_the_line))) * above_the_line_fragment)
         for record in above_the_line:
             print_record(record, above_the_line_weight, rank)
             
     if len(bellow_the_line) > 0:
-        bellow_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(bellow_the_line))) * (1.0 - ABOVE_THE_LINE_WEIGHT))
+        bellow_the_line_weight = u'{0:.32f}'.format((1.0 / float(len(bellow_the_line))) * (1.0 - above_the_line_fragment))
         for record in bellow_the_line:
             print_record(record, bellow_the_line_weight, rank)
             

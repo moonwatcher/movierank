@@ -3,7 +3,9 @@
 
 import sys
 
-# In the first bootstrap phase we calculate the weight for each person in the content and the initial content rank
+# We start with some initial cleaning to remove some spurious records:
+# * movies without a release year
+# * movies who's release year is in the future
 
 def map():
     for line in sys.stdin:
@@ -31,26 +33,10 @@ def map():
         #18     <movie name>                                <tv show name>              <tv season number>          <tv episode name>
         record = line.strip().split(u'\t')
         if len(record) == 19: # otherwise something went wrong...
-            # we want to sort by content id so we swap 0 and 2
-            print u'\t'.join([
-                record[2], 
-                record[1],
-                record[0],
-                record[3],
-                record[4],
-                record[5],
-                record[6],
-                record[7],
-                record[8],
-                record[9],
-                record[10],
-                record[11],
-                record[12],
-                record[13],
-                record[14],
-                record[15],
-                record[16],
-                record[17],
-                record[18]
-            ]).encode('utf8')
+            try:
+                year = int(record[4])
+                if year <= 2014:
+                    print u'\t'.join(record).encode('utf8')
+            except ValueError as e:
+                pass
 map()
