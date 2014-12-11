@@ -9,3 +9,4 @@ several other metrics were attempted with higher or lower bias to the distributi
 https://github.com/moonwatcher/movierank/tree/master/third
 https://github.com/moonwatcher/movierank/tree/master/fourth
 https://github.com/moonwatcher/movierank/tree/master/fifth
+https://github.com/moonwatcher/movierank/tree/master/six
