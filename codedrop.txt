@@ -1,0 +1,7 @@
+# Realtime and Big Data Analytics Fall 2014, Final project. 10 December 2014
+# Lior Galanti lior.galanti@nyu.edu N14314920
+
+My initial, naive, implementation was highly influenced by page rank in the sense that when ranks were transferred between the two sides of the bi partite graph they were distributed among the outgoing edges. At first uniformly and later according to more "cinematically sound" logic of "above" and "bellow" the line contributors (see: http://en.wikipedia.org/wiki/Above_the_line_(filmmaking)). This approach however turned out to be flawed as it introduced a lot of biases. important movies that had plenty of participants ended up having a smaller impact on the ranking of their corresponding participants and people involved in the creation of many small and insignificant movies ended up with completely inflated scores. The code for this approach is availabel on this git revision: https://github.com/moonwatcher/movierank/tree/6d1f4d6c3ada1f564fc64aa51c5fe341622ff90f
+
+The second implementation i attempted used a more sound logic of transferring the ranks, as described in the paper, but required an additional normalization phase.
+ 
